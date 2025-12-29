@@ -18,8 +18,15 @@ There have been several improvements to the Q-learning algorithm over the years,
 - [x] Vanilla DQN
 - [x] DQN with fixed target distribution
 - [x] Double DQN
+- [x] Batch prediction for faster training
 - [ ] Prioritized Experience Replay
 - [ ] Dueling Network Architectures
+
+## Requirements
+
+- Python 3.9+
+- TensorFlow 2.16+
+- Keras 3.x (included with TensorFlow)
 
 ## Results
 
@@ -56,10 +63,14 @@ python3 train.py data/GOOG.csv data/GOOG_2018.csv --strategy t-dqn
 Once you're done training, run the evaluation script and let the agent make trading decisions:
 
 ```bash
-python3 eval.py data/GOOG_2019.csv --model-name model_GOOG_50 --debug
+python3 eval.py data/GOOG_2019.csv --model-name model_debug_10.keras --debug
 ```
 
 Now you are all set up!
+
+## Model Format
+
+Models are saved in the new Keras 3 `.keras` format. Legacy models from TensorFlow 1.x are not compatible with this version. If you need to use old models, you will need to retrain them.
 
 ## Acknowledgements
 
