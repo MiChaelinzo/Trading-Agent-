@@ -5,8 +5,6 @@ import logging
 import pandas as pd
 import numpy as np
 
-import keras.backend as K
-
 
 # Formats Position
 format_position = lambda price: ('-$' if price < 0 else '+$') + '{0:.2f}'.format(abs(price))
@@ -48,6 +46,14 @@ def switch_k_backend_device():
 
     Faster computation on CPU (if using tensorflow-gpu).
     """
-    if K.backend() == "tensorflow":
-        logging.debug("switching to TensorFlow for CPU")
+    # In TensorFlow 2.x, we control GPU usage differently
+    import tensorflow as tf
+    # Disable GPU to use CPU for faster training
+    try:
+        # For TensorFlow 2.x
+        tf.config.set_visible_devices([], 'GPU')
+        logging.debug("Disabled GPU, using CPU for computation")
+    except Exception as e:
+        # Fallback for older versions or environments without GPU
         os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+        logging.debug("Set CUDA_VISIBLE_DEVICES=-1 to use CPU")

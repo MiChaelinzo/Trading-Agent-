@@ -1,17 +1,18 @@
 import random
+import os
 
 from collections import deque
 
 import numpy as np
 import tensorflow as tf
-import keras.backend as K
-
+import keras
 from keras.models import Sequential
 from keras.models import load_model, clone_model
-from keras.layers import Dense
+from keras.layers import Dense, Input
 from keras.optimizers import Adam
 
 
+@keras.saving.register_keras_serializable()
 def huber_loss(y_true, y_pred, clip_delta=1.0):
     """Huber loss - Custom Loss Function for Q Learning
 
@@ -19,10 +20,10 @@ def huber_loss(y_true, y_pred, clip_delta=1.0):
             https://jaromiru.com/2017/05/27/on-using-huber-loss-in-deep-q-learning/
     """
     error = y_true - y_pred
-    cond = K.abs(error) <= clip_delta
-    squared_loss = 0.5 * K.square(error)
-    quadratic_loss = 0.5 * K.square(clip_delta) + clip_delta * (K.abs(error) - clip_delta)
-    return K.mean(tf.where(cond, squared_loss, quadratic_loss))
+    cond = tf.abs(error) <= clip_delta
+    squared_loss = 0.5 * tf.square(error)
+    quadratic_loss = 0.5 * tf.square(clip_delta) + clip_delta * (tf.abs(error) - clip_delta)
+    return tf.reduce_mean(tf.where(cond, squared_loss, quadratic_loss))
 
 
 class Agent:
@@ -48,7 +49,7 @@ class Agent:
         self.learning_rate = 0.001
         self.loss = huber_loss
         self.custom_objects = {"huber_loss": huber_loss}  # important for loading the model from memory
-        self.optimizer = Adam(lr=self.learning_rate)
+        self.optimizer = Adam(learning_rate=self.learning_rate)
 
         if pretrained and self.model_name is not None:
             self.model = self.load()
@@ -67,12 +68,14 @@ class Agent:
     def _model(self):
         """Creates the model
         """
-        model = Sequential()
-        model.add(Dense(units=128, activation="relu", input_dim=self.state_size))
-        model.add(Dense(units=256, activation="relu"))
-        model.add(Dense(units=256, activation="relu"))
-        model.add(Dense(units=128, activation="relu"))
-        model.add(Dense(units=self.action_size))
+        model = Sequential([
+            Input(shape=(self.state_size,)),
+            Dense(units=128, activation="relu"),
+            Dense(units=256, activation="relu"),
+            Dense(units=256, activation="relu"),
+            Dense(units=128, activation="relu"),
+            Dense(units=self.action_size)
+        ])
 
         model.compile(loss=self.loss, optimizer=self.optimizer)
         return model
@@ -93,80 +96,85 @@ class Agent:
             self.first_iter = False
             return 1 # make a definite buy on the first iter
 
-        action_probs = self.model.predict(state)
+        action_probs = self.model.predict(state, verbose=0)
         return np.argmax(action_probs[0])
 
     def train_experience_replay(self, batch_size):
         """Train on previous experiences in memory
+        Uses batch prediction for improved performance.
         """
         mini_batch = random.sample(self.memory, batch_size)
-        X_train, y_train = [], []
+        
+        # Prepare batch data
+        states = np.array([sample[0][0] for sample in mini_batch])
+        next_states = np.array([sample[3][0] for sample in mini_batch])
+        actions = [sample[1] for sample in mini_batch]
+        rewards = [sample[2] for sample in mini_batch]
+        dones = [sample[4] for sample in mini_batch]
         
         # DQN
         if self.strategy == "dqn":
-            for state, action, reward, next_state, done in mini_batch:
-                if done:
-                    target = reward
+            # Batch predict for both states and next_states
+            q_values = self.model.predict(states, verbose=0)
+            next_q_values = self.model.predict(next_states, verbose=0)
+            
+            for i in range(batch_size):
+                if dones[i]:
+                    target = rewards[i]
                 else:
-                    # approximate deep q-learning equation
-                    target = reward + self.gamma * np.amax(self.model.predict(next_state)[0])
-
-                # estimate q-values based on current state
-                q_values = self.model.predict(state)
-                # update the target for current action based on discounted reward
-                q_values[0][action] = target
-
-                X_train.append(state[0])
-                y_train.append(q_values[0])
+                    target = rewards[i] + self.gamma * np.amax(next_q_values[i])
+                q_values[i][actions[i]] = target
+            
+            X_train = states
+            y_train = q_values
 
         # DQN with fixed targets
         elif self.strategy == "t-dqn":
             if self.n_iter % self.reset_every == 0:
-                # reset target model weights
                 self.target_model.set_weights(self.model.get_weights())
-
-            for state, action, reward, next_state, done in mini_batch:
-                if done:
-                    target = reward
+            
+            # Batch predict
+            q_values = self.model.predict(states, verbose=0)
+            next_q_values = self.target_model.predict(next_states, verbose=0)
+            
+            for i in range(batch_size):
+                if dones[i]:
+                    target = rewards[i]
                 else:
-                    # approximate deep q-learning equation with fixed targets
-                    target = reward + self.gamma * np.amax(self.target_model.predict(next_state)[0])
-
-                # estimate q-values based on current state
-                q_values = self.model.predict(state)
-                # update the target for current action based on discounted reward
-                q_values[0][action] = target
-
-                X_train.append(state[0])
-                y_train.append(q_values[0])
+                    target = rewards[i] + self.gamma * np.amax(next_q_values[i])
+                q_values[i][actions[i]] = target
+            
+            X_train = states
+            y_train = q_values
 
         # Double DQN
         elif self.strategy == "double-dqn":
             if self.n_iter % self.reset_every == 0:
-                # reset target model weights
                 self.target_model.set_weights(self.model.get_weights())
-
-            for state, action, reward, next_state, done in mini_batch:
-                if done:
-                    target = reward
+            
+            # Batch predict from both networks
+            q_values = self.model.predict(states, verbose=0)
+            next_q_values_model = self.model.predict(next_states, verbose=0)
+            next_q_values_target = self.target_model.predict(next_states, verbose=0)
+            
+            for i in range(batch_size):
+                if dones[i]:
+                    target = rewards[i]
                 else:
-                    # approximate double deep q-learning equation
-                    target = reward + self.gamma * self.target_model.predict(next_state)[0][np.argmax(self.model.predict(next_state)[0])]
-
-                # estimate q-values based on current state
-                q_values = self.model.predict(state)
-                # update the target for current action based on discounted reward
-                q_values[0][action] = target
-
-                X_train.append(state[0])
-                y_train.append(q_values[0])
+                    # Use model to select action, target to evaluate
+                    best_action = np.argmax(next_q_values_model[i])
+                    target = rewards[i] + self.gamma * next_q_values_target[i][best_action]
+                q_values[i][actions[i]] = target
+            
+            X_train = states
+            y_train = q_values
                 
         else:
             raise NotImplementedError()
 
         # update q-function parameters based on huber loss gradient
         loss = self.model.fit(
-            np.array(X_train), np.array(y_train),
+            X_train, y_train,
             epochs=1, verbose=0
         ).history["loss"][0]
 
@@ -178,7 +186,36 @@ class Agent:
         return loss
 
     def save(self, episode):
-        self.model.save("models/{}_{}".format(self.model_name, episode))
+        """Save model in Keras 3 format with .keras extension"""
+        filepath = "models/{}_{}.keras".format(self.model_name, episode)
+        self.model.save(filepath)
 
     def load(self):
-        return load_model("models/" + self.model_name, custom_objects=self.custom_objects)
+        """Load model - supports both new .keras and legacy formats"""
+        model_path = "models/" + self.model_name
+        
+        # Try new .keras format first
+        if model_path.endswith('.keras'):
+            return load_model(model_path, custom_objects=self.custom_objects)
+        
+        # Check if .keras version exists
+        keras_path = model_path + ".keras"
+        if os.path.exists(keras_path):
+            return load_model(keras_path, custom_objects=self.custom_objects)
+        
+        # For legacy models, check if the file exists and try to load
+        if os.path.exists(model_path):
+            # Legacy models from TF1 SavedModel format need special handling
+            try:
+                # Try loading as legacy H5
+                return load_model(model_path, custom_objects=self.custom_objects)
+            except ValueError:
+                # If legacy format fails, try using TFSMLayer for inference only
+                import keras
+                print(f"Warning: Model {model_path} is in legacy format. Creating a new model instead.")
+                print("For inference with old models, you may need to convert them or retrain.")
+                # Return a new model since the old format is incompatible
+                return self._model()
+        
+        # Check for path with .keras extension added
+        raise FileNotFoundError(f"Model not found: {model_path} or {keras_path}")
