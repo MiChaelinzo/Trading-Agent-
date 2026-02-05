@@ -14,7 +14,15 @@ from .ops import (
 )
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+#  NIGHT CITY TRADING PROTOCOL - CORE METHODS
+#  "Money talks. In Night City, it screams." - Unknown Fixer
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
 def train_model(agent, episode, data, ep_count=100, batch_size=32, window_size=10):
+    """Neural Training Loop — Teaching the daemon to extract eddies
+    """
     total_profit = 0
     data_length = len(data) - 1
 
@@ -23,25 +31,26 @@ def train_model(agent, episode, data, ep_count=100, batch_size=32, window_size=1
 
     state = get_state(data, 0, window_size + 1)
 
-    for t in tqdm(range(data_length), total=data_length, leave=True, desc='Episode {}/{}'.format(episode, ep_count)):        
+    for t in tqdm(range(data_length), total=data_length, leave=True, 
+                  desc='⚡ NEURAL CYCLE {}/{}'.format(episode, ep_count)):        
         reward = 0
         next_state = get_state(data, t + 1, window_size + 1)
 
-        # select an action
+        # Select combat action
         action = agent.act(state)
 
-        # BUY
+        # 🟢 BUY — Acquiring corpo assets
         if action == 1:
             agent.inventory.append(data[t])
 
-        # SELL
+        # 🔴 SELL — Extracting eddies
         elif action == 2 and len(agent.inventory) > 0:
             bought_price = agent.inventory.pop(0)
             delta = data[t] - bought_price
-            reward = delta #max(delta, 0)
+            reward = delta
             total_profit += delta
 
-        # HOLD
+        # ⚪ HOLD — Maintaining position
         else:
             pass
 
@@ -54,6 +63,7 @@ def train_model(agent, episode, data, ep_count=100, batch_size=32, window_size=1
 
         state = next_state
 
+    # Save neural shard every 10 cycles
     if episode % 10 == 0:
         agent.save(episode)
 
@@ -61,6 +71,10 @@ def train_model(agent, episode, data, ep_count=100, batch_size=32, window_size=1
 
 
 def evaluate_model(agent, data, window_size, debug):
+    """Evaluation Protocol — Daemon deployed on live market data
+    
+    Time to see if this chrome was worth the eddies, choom.
+    """
     total_profit = 0
     data_length = len(data) - 1
 
@@ -73,29 +87,30 @@ def evaluate_model(agent, data, window_size, debug):
         reward = 0
         next_state = get_state(data, t + 1, window_size + 1)
         
-        # select an action
+        # Select combat action (evaluation mode - no chaos)
         action = agent.act(state, is_eval=True)
 
-        # BUY
+        # 🟢 BUY — Acquiring corpo assets
         if action == 1:
             agent.inventory.append(data[t])
 
             history.append((data[t], "BUY"))
             if debug:
-                logging.debug("Buy at: {}".format(format_currency(data[t])))
+                logging.debug("🟢 ACQUIRING: {}".format(format_currency(data[t])))
         
-        # SELL
+        # 🔴 SELL — Extracting eddies from the market
         elif action == 2 and len(agent.inventory) > 0:
             bought_price = agent.inventory.pop(0)
             delta = data[t] - bought_price
-            reward = delta #max(delta, 0)
+            reward = delta
             total_profit += delta
 
             history.append((data[t], "SELL"))
             if debug:
-                logging.debug("Sell at: {} | Position: {}".format(
+                logging.debug("🔴 EXTRACTING: {} | Eddies: {}".format(
                     format_currency(data[t]), format_position(data[t] - bought_price)))
-        # HOLD
+        
+        # ⚪ HOLD — Ghost in the machine
         else:
             history.append((data[t], "HOLD"))
 
