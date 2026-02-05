@@ -13,9 +13,9 @@
 > *"In 2077, what makes someone a successful trader? Getting rich."*
 > — V, probably
 
-[![Powered by Arasaka Tech](https://img.shields.io/badge/Powered%20by-Arasaka%20Tech-ff003c?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmMDAzYyIgZD0iTTEyIDJMMiAyMmgyMEwxMiAyeiIvPjwvc3ZnPg==)](https://github.com)
-[![NetRunner Certified](https://img.shields.io/badge/NetRunner-Certified-00f0ff?style=for-the-badge)](https://github.com)
-[![ICE Breaker](https://img.shields.io/badge/ICE%20Breaker-ACTIVE-fcee0a?style=for-the-badge)](https://github.com)
+[![Powered by Arasaka Tech](https://img.shields.io/badge/Powered%20by-Arasaka%20Tech-ff003c?style=for-the-badge)](https://github.com/MiChaelinzo/Trading-Agent-)
+[![NetRunner Certified](https://img.shields.io/badge/NetRunner-Certified-00f0ff?style=for-the-badge)](https://github.com/MiChaelinzo/Trading-Agent-/blob/main/README.md)
+[![ICE Breaker](https://img.shields.io/badge/ICE%20Breaker-ACTIVE-fcee0a?style=for-the-badge)](https://github.com/MiChaelinzo/Trading-Agent-/blob/main/LICENSE)
 
 ---
 
