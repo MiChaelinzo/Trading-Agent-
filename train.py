@@ -1,5 +1,10 @@
 """
-Script for training Stock Trading Bot.
+═══════════════════════════════════════════════════════════════════════════════
+  NETRUNNER TRADING DAEMON - TRAINING PROTOCOL v2.077
+  "Wake up, Samurai. We have markets to burn." - Johnny Silverhand
+═══════════════════════════════════════════════════════════════════════════════
+
+Script for training the NetRunner Trading Daemon using Deep Q-Learning.
 
 Usage:
   train.py <train-stock> <val-stock> [--strategy=<strategy>]
@@ -8,19 +13,17 @@ Usage:
     [--pretrained] [--debug]
 
 Options:
-  --strategy=<strategy>             Q-learning strategy to use for training the network. Options:
-                                      `dqn` i.e. Vanilla DQN,
-                                      `t-dqn` i.e. DQN with fixed target distribution,
-                                      `double-dqn` i.e. DQN with separate network for value estimation. [default: t-dqn]
-  --window-size=<window-size>       Size of the n-day window stock data representation
-                                    used as the feature vector. [default: 10]
-  --batch-size=<batch-size>         Number of samples to train on in one mini-batch
-                                    during training. [default: 32]
-  --episode-count=<episode-count>   Number of trading episodes to use for training. [default: 50]
-  --model-name=<model-name>         Name of the pretrained model to use. [default: model_debug]
-  --pretrained                      Specifies whether to continue training a previously
-                                    trained model (reads `model-name`).
-  --debug                           Specifies whether to use verbose logs during eval operation.
+  --strategy=<strategy>             Combat algorithm for neural training:
+                                      `dqn` - Vanilla DQN (basic chrome)
+                                      `t-dqn` - DQN with fixed target (stabilized)
+                                      `double-dqn` - Dual-core processing [default: t-dqn]
+  --window-size=<window-size>       Size of the n-day market observation window
+                                    (neural input vector size). [default: 10]
+  --batch-size=<batch-size>         Number of braindance samples per training batch. [default: 32]
+  --episode-count=<episode-count>   Number of neural cycles for training. [default: 50]
+  --model-name=<model-name>         Name of the neural shard to save/load. [default: model_debug]
+  --pretrained                      Load existing neural shard and continue training.
+  --debug                           Enable verbose NetRunner logging.
 """
 
 import logging
@@ -42,10 +45,12 @@ from trading_bot.utils import (
 def main(train_stock, val_stock, window_size, batch_size, ep_count,
          strategy="t-dqn", model_name="model_debug", pretrained=False,
          debug=False):
-    """ Trains the stock trading bot using Deep Q-Learning.
-    Please see https://arxiv.org/abs/1312.5602 for more details.
-
-    Args: [python train.py --help]
+    """ 
+    ╔═══════════════════════════════════════════════════════════════════════╗
+    ║  NEURAL TRAINING PROTOCOL                                             ║
+    ║  Jacking into the corpo markets...                                    ║
+    ║  Reference: https://arxiv.org/abs/1312.5602                           ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
     """
     agent = Agent(window_size, strategy=strategy, pretrained=pretrained, model_name=model_name)
     
@@ -76,10 +81,31 @@ if __name__ == "__main__":
 
     coloredlogs.install(level="DEBUG")
     switch_k_backend_device()
+    
+    print("""
+    ╔════════════════════════════════════════════════════════════════════════╗
+    ║                                                                        ║
+    ║   ███╗   ██╗███████╗████████╗██████╗ ██╗   ██╗███╗   ██╗███╗   ██╗    ║
+    ║   ████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║   ██║████╗  ██║████╗  ██║    ║
+    ║   ██╔██╗ ██║█████╗     ██║   ██████╔╝██║   ██║██╔██╗ ██║██╔██╗ ██║    ║
+    ║   ██║╚██╗██║██╔══╝     ██║   ██╔══██╗██║   ██║██║╚██╗██║██║╚██╗██║    ║
+    ║   ██║ ╚████║███████╗   ██║   ██║  ██║╚██████╔╝██║ ╚████║██║ ╚████║    ║
+    ║   ╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═══╝    ║
+    ║                                                                        ║
+    ║               TRADING DAEMON v2.077 - TRAINING MODE                    ║
+    ║                    "Time to extract some eddies."                      ║
+    ║                                                                        ║
+    ╠════════════════════════════════════════════════════════════════════════╣
+    ║   > NEURAL LINK: ESTABLISHED                                           ║
+    ║   > COMBAT ALGORITHM: {:<48}║
+    ║   > MARKET DATA: LOADED                                                ║
+    ║   > STATUS: JACKING IN...                                              ║
+    ╚════════════════════════════════════════════════════════════════════════╝
+    """.format(strategy.upper()))
 
     try:
         main(train_stock, val_stock, window_size, batch_size,
              ep_count, strategy=strategy, model_name=model_name, 
              pretrained=pretrained, debug=debug)
     except KeyboardInterrupt:
-        print("Aborted!")
+        print("\n💀 FLATLINE: Training aborted by user. Stay safe out there, choom.")

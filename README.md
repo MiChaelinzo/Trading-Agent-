@@ -1,86 +1,181 @@
-# Overview
+# 🌃 NETRUNNER TRADING PROTOCOL v2.077 🌃
 
-This project implements a Stock Trading Bot, trained using Deep Reinforcement Learning, specifically Deep Q-learning. Implementation is kept simple and as close as possible to the algorithm discussed in the paper, for learning purposes.
+```
+ ██████╗██╗   ██╗██████╗ ███████╗██████╗ ████████╗██████╗  █████╗ ██████╗ ███████╗██████╗ 
+██╔════╝╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗
+██║      ╚████╔╝ ██████╔╝█████╗  ██████╔╝   ██║   ██████╔╝███████║██║  ██║█████╗  ██████╔╝
+██║       ╚██╔╝  ██╔══██╗██╔══╝  ██╔══██╗   ██║   ██╔══██╗██╔══██║██║  ██║██╔══╝  ██╔══██╗
+╚██████╗   ██║   ██████╔╝███████╗██║  ██║   ██║   ██║  ██║██║  ██║██████╔╝███████╗██║  ██║
+ ╚═════╝   ╚═╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝
+                    [ NIGHT CITY MARKET EXPLOITATION SYSTEM ]
+```
 
-## Introduction
+> *"In 2077, what makes someone a successful trader? Getting rich."*
+> — V, probably
 
-Generally, Reinforcement Learning is a family of machine learning techniques that allow us to create intelligent agents that learn from the environment by interacting with it, as they learn an optimal policy by trial and error. This is especially useful in many real world tasks where supervised learning might not be the best approach due to various reasons like nature of task itself, lack of appropriate labelled data, etc.
+[![Powered by Arasaka Tech](https://img.shields.io/badge/Powered%20by-Arasaka%20Tech-ff003c?style=for-the-badge)](https://github.com/MiChaelinzo/Trading-Agent-)
+[![NetRunner Certified](https://img.shields.io/badge/NetRunner-Certified-00f0ff?style=for-the-badge)](https://github.com/MiChaelinzo/Trading-Agent-/blob/main/README.md)
+[![ICE Breaker](https://img.shields.io/badge/ICE%20Breaker-ACTIVE-fcee0a?style=for-the-badge)](https://github.com/MiChaelinzo/Trading-Agent-/blob/main/LICENSE)
 
-The important idea here is that this technique can be applied to any real world task that can be described loosely as a Markovian process.
+---
 
-## Approach
+## 🔮 OVERVIEW | PROGRAM BRIEFING
 
-This work uses a Model-free Reinforcement Learning technique called Deep Q-Learning (neural variant of Q-Learning).
-At any given time (episode), an agent abserves it's current state (n-day window stock price representation), selects and performs an action (buy/sell/hold), observes a subsequent state, receives some reward signal (difference in portfolio position) and lastly adjusts it's parameters based on the gradient of the loss computed.
+**Choom**, welcome to the most preem stock trading ICE-breaker this side of Night City. This neural network runs hotter than a Militech shard, trained using **Deep Reinforcement Learning** (Deep Q-Learning) to hack the corpo markets and extract maximum eddies.
 
-There have been several improvements to the Q-learning algorithm over the years, and a few have been implemented in this project:
+Implementation is delta-grade — clean, minimal, and optimized for those chooms who want to understand the tech behind the chrome.
 
-- [x] Vanilla DQN
-- [x] DQN with fixed target distribution
-- [x] Double DQN
-- [x] Batch prediction for faster training
-- [ ] Prioritized Experience Replay
-- [ ] Dueling Network Architectures
+---
 
-## Requirements
+## 💀 INTRODUCTION | JACKING IN
 
-- Python 3.9+
-- TensorFlow 2.16+
-- Keras 3.x (included with TensorFlow)
+In the dark future of automated trading, **Reinforcement Learning** is the closest thing to true machine consciousness. These algorithms learn like street samurai — through trial, error, and a whole lot of flatlined trades.
 
-## Results
+The beauty? This technique adapts to any market situation that can be described as a **Markovian process** — which in corpo-speak means: *"The future depends only on the present, not the past."*
 
-Trained on `GOOG` 2010-17 stock data, tested on 2019 with a profit of $1141.45 (validated on 2018 with profit of $863.41):
+> 💡 **NetRunner Tip:** Traditional supervised learning is like following a corpo playbook. RL is like being a solo — you learn what works through experience on the streets.
 
-![Google Stock Trading episode](./extra/visualization.png)
+---
 
-You can obtain similar visualizations of your model evaluations using the [notebook](./visualize.ipynb) provided.
+## ⚡ APPROACH | COMBAT ALGORITHMS
 
-## Some Caveats
+This daemon utilizes **Model-free Reinforcement Learning** via **Deep Q-Learning** — think of it as installing a Sandevistan for your trading decisions.
 
-- At any given state, the agent can only decide to buy/sell one stock at a time. This is done to keep things as simple as possible as the problem of deciding how much stock to buy/sell is one of portfolio redistribution.
-- The n-day window feature representation is a vector of subsequent differences in Adjusted Closing price of the stock we're trading followed by a sigmoid operation, done in order to normalize the values to the range [0, 1].
-- Training is prefferably done on CPU due to it's sequential manner, after each episode of trading we replay the experience (1 epoch over a small minibatch) and update model parameters.
+**The Loop:**
+```
+[JACK IN] → Observe market state → Execute action (BUY/SELL/HOLD) → 
+Receive reward signal → Update neural weights → [REPEAT]
+```
 
-## Data
+### 🔧 INSTALLED CYBERWARE (Implemented Features)
 
-You can download Historical Financial data from [Yahoo! Finance](https://ca.finance.yahoo.com/) for training, or even use some sample datasets already present under `data/`.
+- [x] 🧠 **Vanilla DQN** — Base neural implant
+- [x] 🎯 **DQN with Fixed Target Distribution** — Stabilized targeting system  
+- [x] 🔄 **Double DQN** — Dual-core processing for better value estimation
+- [x] ⚡ **Batch Prediction** — Overclocked training speed
+- [ ] 📊 **Prioritized Experience Replay** — Memory optimization (coming soon)
+- [ ] 🏗️ **Dueling Network Architectures** — Advanced combat protocols (coming soon)
 
-## Getting Started
+---
 
-In order to use this project, you'll need to install the required python packages:
+## 🔧 SYSTEM REQUIREMENTS | CYBERWARE SPECS
+
+```
+╔══════════════════════════════════════════════════╗
+║  MINIMUM REQUIREMENTS FOR NEURAL LINK            ║
+╠══════════════════════════════════════════════════╣
+║  ► Python 3.9+ (Neural Interface)                ║
+║  ► TensorFlow 2.16+ (Cortex Processor)           ║
+║  ► Keras 3.x (Synaptic Framework)                ║
+╚══════════════════════════════════════════════════╝
+```
+
+---
+
+## 📊 RESULTS | EDDIES EXTRACTED
+
+**Target:** `GOOG` corpo stock (2010-17 training data)  
+**Mission Status:** ✅ **COMPLETE**  
+**Profit Extracted:** `$1,141.45` (2019 test) | `$863.41` (2018 validation)
+
+![Night City Trading Session](./extra/visualization.png)
+
+> *"That's a lot of eddies, choom."*
+
+Check out the [DataKrash Visualization Notebook](./visualize.ipynb) for detailed analytics of your runs.
+
+---
+
+## ⚠️ KNOWN LIMITATIONS | SYSTEM BUGS
+
+| Issue | Description |
+|-------|-------------|
+| 🎯 **Single-Stock Mode** | Agent trades one share at a time — keeps the neural load manageable, choom |
+| 📈 **Normalized Vectors** | N-day window uses sigmoid normalization [0,1] — standard Arasaka protocols |
+| 🖥️ **CPU Training** | Sequential nature means CPU outperforms GPU — no Kiroshi optics needed here |
+
+---
+
+## 💾 DATA SOURCES | CORPO INTEL
+
+Download market data from [Yahoo! Finance](https://ca.finance.yahoo.com/) or use the included datasets in `data/` directory — pre-extracted from Arasaka servers. 
+
+---
+
+## 🚀 GETTING STARTED | INITIALIZATION SEQUENCE
+
+### STEP 1: Install Neural Drivers
 
 ```bash
+# Initialize cyberware dependencies
 pip3 install -r requirements.txt
 ```
 
-Now you can open up a terminal and start training the agent:
+### STEP 2: Begin Training Protocol
 
 ```bash
+# Jack into the training matrix
 python3 train.py data/GOOG.csv data/GOOG_2018.csv --strategy t-dqn
 ```
 
-Once you're done training, run the evaluation script and let the agent make trading decisions:
+### STEP 3: Deploy Trading Daemon
 
 ```bash
+# Unleash the trading ICE-breaker
 python3 eval.py data/GOOG_2019.csv --model-name model_debug_10.keras --debug
 ```
 
-Now you are all set up!
+```
+╔════════════════════════════════════════════════════════════╗
+║  > SYSTEM INITIALIZED                                      ║
+║  > NEURAL LINK: ESTABLISHED                                ║
+║  > MARKET CONNECTION: ONLINE                               ║
+║  > STATUS: READY TO EXTRACT EDDIES                         ║
+╚════════════════════════════════════════════════════════════╝
+```
 
-## Model Format
+---
 
-Models are saved in the new Keras 3 `.keras` format. Legacy models from TensorFlow 1.x are not compatible with this version. If you need to use old models, you will need to retrain them.
+## 💿 MODEL FORMAT | DATA SHARD SPECS
 
-## Acknowledgements
+Models are saved in **Keras 3 `.keras` format** — the new corpo standard. Legacy TensorFlow 1.x shards are incompatible. If you've got old chrome, you'll need to retrain from scratch.
 
-- [@keon](https://github.com/keon) for [deep-q-learning](https://github.com/keon/deep-q-learning)
-- [@edwardhdlu](https://github.com/edwardhdlu) for [q-trader](https://github.com/edwardhdlu/q-trader)
+---
 
-## References
+## 🙏 CREDITS | FIXERS & CHOOMS
 
-- [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602)
-- [Human Level Control Through Deep Reinforcement Learning](https://deepmind.com/research/publications/human-level-control-through-deep-reinforcement-learning/)
-- [Deep Reinforcement Learning with Double Q-Learning](https://arxiv.org/abs/1509.06461)
-- [Prioritized Experience Replay](https://arxiv.org/abs/1511.05952)
-- [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581)
+**Props to these legendary NetRunners:**
+
+- [@keon](https://github.com/keon) — Original [deep-q-learning](https://github.com/keon/deep-q-learning) architect
+- [@edwardhdlu](https://github.com/edwardhdlu) — [q-trader](https://github.com/edwardhdlu/q-trader) pioneer
+
+---
+
+## 📚 REFERENCES | ARASAKA DATABASE
+
+**Required Reading for Aspiring NetRunners:**
+
+- 📖 [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602) — *The OG shard*
+- 📖 [Human Level Control Through Deep Reinforcement Learning](https://deepmind.com/research/publications/human-level-control-through-deep-reinforcement-learning/) — *DeepMind's magnum opus*
+- 📖 [Deep RL with Double Q-Learning](https://arxiv.org/abs/1509.06461) — *Dual-core optimization*
+- 📖 [Prioritized Experience Replay](https://arxiv.org/abs/1511.05952) — *Memory enhancement protocols*
+- 📖 [Dueling Network Architectures](https://arxiv.org/abs/1511.06581) — *Advanced combat systems*
+
+---
+
+<div align="center">
+
+```
+    ╔═══════════════════════════════════════════════════════════╗
+    ║                                                           ║
+    ║   "The street finds its own uses for things."             ║
+    ║                        — William Gibson                   ║
+    ║                                                           ║
+    ║   Wake up, Samurai. We have markets to burn. 🔥           ║
+    ║                                                           ║
+    ╚═══════════════════════════════════════════════════════════╝
+```
+
+**Made with 💜 in Night City | 2077**
+
+</div>
